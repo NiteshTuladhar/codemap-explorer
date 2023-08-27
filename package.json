@@ -17,6 +17,12 @@
         "command": "codemap-explorer.codemapper",
         "title": "Code Mapper"
       }
+    ],
+    "keybindings": [
+      {
+        "command": "codemap-explorer.codemapper",
+        "key": "ctrl+shift+g"
+      }
     ]
   },
   "scripts": {

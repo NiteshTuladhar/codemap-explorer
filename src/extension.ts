@@ -1,19 +1,9 @@
 "use strict";
 
 import * as vscode from "vscode";
+import { jsExtracter, pythonExtracter, valueChecker } from "./utils/extracter";
 
-type CurrentFunctionType = {
-  funcName: string;
-  lineNumber: number;
-};
-
-type DataType = {
-  label: string;
-  detail: string;
-  lineNumber: number;
-};
-
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext): void {
   let disposable = vscode.commands.registerCommand(
     "codemap-explorer.codemapper",
     async () => {
@@ -36,37 +26,53 @@ export function activate(context: vscode.ExtensionContext) {
 
       for (const line of lines) {
         const trimmedLine = line.trim();
-        if (trimmedLine.startsWith("function ")) {
+
+        if (valueChecker(trimmedLine)) {
           targetLineNumber =
             document.positionAt(fileContent.indexOf(trimmedLine)).line + 1;
+
           isInsideFunction = true;
-          (currentFunction as CurrentFunctionType).funcName = trimmedLine
-            .split(" ")[1]
-            .split("(")[0];
+
+          const fileExt = document.uri.fsPath.split(".").pop();
+
+          let extractorType: any = null;
+
+          if (fileExt === "js") {
+            extractorType = jsExtracter;
+          } else {
+            extractorType = pythonExtracter;
+          }
+
+          (currentFunction as CurrentFunctionType).funcName =
+            extractorType(trimmedLine).valueName;
+
           (currentFunction as CurrentFunctionType).lineNumber =
             targetLineNumber;
+
+          (currentFunction as CurrentFunctionType).type =
+            extractorType(trimmedLine).type;
         }
 
         if (isInsideFunction) {
-          if (trimmedLine.endsWith(") {")) {
-            functions.push(currentFunction);
-            currentFunction = {};
-            isInsideFunction = false;
-          }
+          functions.push(currentFunction);
+          currentFunction = {};
+          isInsideFunction = false;
         }
       }
 
       functions.map((each) => {
+        const each_ = each as CurrentFunctionType;
+        const eachLineNumber = each_?.lineNumber;
         data_.push({
-          label: (each as CurrentFunctionType)?.funcName,
-          detail: "Function that is used to get all the products for the store",
-          lineNumber: (each as CurrentFunctionType)?.lineNumber,
+          label: each_.funcName,
+          detail: `Line: ${eachLineNumber}  | ${each_.type}`,
+          lineNumber: eachLineNumber,
         });
       });
 
       //picker ui
       const selectedFunc = await vscode.window.showQuickPick(data_, {
-        matchOnDetail: true, //enables the keyword search on title as well as on details
+        matchOnDetail: true, //enables the keyword search on title as well as on details,
       });
 
       if (!selectedFunc) {
