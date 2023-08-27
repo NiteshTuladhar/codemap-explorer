@@ -2,7 +2,7 @@
 
 import * as vscode from "vscode";
 import { jsExtracter, pythonExtracter, valueChecker } from "./utils/extracter";
-//nkti2hv75g5rai2rr5psa6y3j7m74s6egtvelnrlvrbkrbb33vpa
+
 export function activate(context: vscode.ExtensionContext): void {
   let disposable = vscode.commands.registerCommand(
     "codemap-explorer.codemapper",
