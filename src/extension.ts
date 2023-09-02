@@ -2,7 +2,7 @@
 
 import * as vscode from "vscode";
 import { jsExtracter, pythonExtracter, valueChecker } from "./utils/extracter";
-
+//
 export function activate(context: vscode.ExtensionContext): void {
   let disposable = vscode.commands.registerCommand(
     "codemap-explorer.codemapper",
@@ -33,11 +33,13 @@ export function activate(context: vscode.ExtensionContext): void {
 
           isInsideFunction = true;
 
-          const fileExt = document.uri.fsPath.split(".").pop();
+          const fileExt: string = document.uri.fsPath
+            .split(".")
+            .pop() as string;
 
           let extractorType: any = null;
 
-          if (fileExt === "js") {
+          if (["js", "jsx", "ts", "tsx"].includes(fileExt)) {
             extractorType = jsExtracter;
           } else {
             extractorType = pythonExtracter;

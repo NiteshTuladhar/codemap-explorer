@@ -1,10 +1,12 @@
 {
   "name": "codemap-explorer",
   "displayName": "CodeMap Explorer",
+  "publisher": "ntldr",
   "description": "",
-  "version": "0.0.1",
+  "icon": "./assets/logo.jpg",
+  "version": "0.2.1",
   "engines": {
-    "vscode": "^1.81.0"
+    "vscode": "^1.1.0"
   },
   "categories": [
     "Other"
