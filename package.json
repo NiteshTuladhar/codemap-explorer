@@ -2,11 +2,11 @@
   "name": "codemap-explorer",
   "displayName": "CodeMap Explorer",
   "publisher": "ntldr",
-  "description": "",
+  "description": "This extension extracts function/class names, and presents a convenient listfor swift navigation.",
   "icon": "./assets/logo.jpg",
   "version": "0.2.1",
   "engines": {
-    "vscode": "^1.1.0"
+    "vscode": "^1.62.0"
   },
   "categories": [
     "Other"
@@ -36,7 +36,7 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
-    "@types/vscode": "^1.81.0",
+    "@types/vscode": "^1.62.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
     "@typescript-eslint/eslint-plugin": "^6.4.1",
