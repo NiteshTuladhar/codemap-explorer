@@ -23,7 +23,9 @@
     "keybindings": [
       {
         "command": "codemap-explorer.codemapper",
-        "key": "ctrl+shift+g"
+        "key": "ctrl+alt+g",
+        "mac": "cmd+alt+g",
+        "when": "editorTextFocus"
       }
     ]
   },

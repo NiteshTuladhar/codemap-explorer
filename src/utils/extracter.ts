@@ -1,12 +1,15 @@
 export const patterns = [
   { condition: /^function\s/, type: "Function" },
   { condition: /^const .*?(\{.*function )?.*=>/, type: "Function" }, //((value.includes("{") && value.includes("function ")) ||value.includes("=>") || value.includes("new"))
+  { condition: /^const\s\w+\s=\sfunction\s\(/, type: "Function" },
   { condition: /^async\sfunction\s/, type: "Function" },
   { condition: /^async\s/, type: "Function" },
   { condition: /^export\sconst\s/, type: "Function" },
   { condition: /^export\sfunction\s/, type: "Function" },
   { condition: /^class\s/, type: "Class" },
   { condition: /^def\s/, type: "Function" },
+  { condition: /^const\s\w+\s=\snew\sFunction\(/, type: "Function" },
+  { condition: /^[\w$]+\(.*?\)\s*{/, type: "Function" }, // getData() or getData(value)
 ];
 
 export const valueChecker = (value: string) => {
@@ -24,6 +27,8 @@ export const jsExtracter = (value: string): ExtractorType => {
       value.includes("=>"))
   ) {
     valueName = value.split(" ")[1];
+  } else if (value.startsWith("const ") && value.includes("new Function")) {
+    valueName = value.split(" ")[1];
   } else if (value.startsWith("async function ")) {
     valueName = value.split(" ")[2].split("(")[0];
   } else if (value.startsWith("async ")) {
@@ -35,6 +40,12 @@ export const jsExtracter = (value: string): ExtractorType => {
   } else if (value.startsWith("class ")) {
     type = "Class";
     valueName = value.split(" ")[1];
+  } else if (
+    value.includes("(") &&
+    value.includes(")") &&
+    value.includes("{")
+  ) {
+    valueName = value.split("(")[0];
   }
 
   const returnValue = {

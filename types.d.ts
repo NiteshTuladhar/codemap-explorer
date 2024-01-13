@@ -7,10 +7,11 @@ type CurrentFunctionType = {
   funcName: string;
   lineNumber: number;
   type?: string;
+  isaMethod: boolean | null;
 };
 
 type DataType = {
   label: string;
-  detail: string;
+  detail?: string;
   lineNumber: number;
 };

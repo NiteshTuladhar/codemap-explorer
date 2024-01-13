@@ -21,11 +21,24 @@ export function activate(context: vscode.ExtensionContext): void {
       const functions = [];
       const lines = fileContent.split("\n");
       let isInsideFunction: boolean = false;
+      let isMethod: boolean = false;
       let currentFunction: CurrentFunctionType | {} = {};
       let targetLineNumber: number | null = null;
 
       for (const line of lines) {
         const trimmedLine = line.trim();
+        console.log("🚀 ~ trimmedLine:", trimmedLine);
+        console.log(
+          "🚀 ~ valueChecker(trimmedLine):",
+          valueChecker(trimmedLine)
+        );
+
+        ///checking to see it the function is inside a class or not.
+        if (/^\s/.test(line)) {
+          isMethod = true;
+        } else {
+          isMethod = false;
+        }
 
         if (valueChecker(trimmedLine)) {
           targetLineNumber =
@@ -53,6 +66,10 @@ export function activate(context: vscode.ExtensionContext): void {
 
           (currentFunction as CurrentFunctionType).type =
             extractorType(trimmedLine).type;
+
+          (currentFunction as CurrentFunctionType).isaMethod =
+            // @ts-ignore
+            currentFunction.type !== "Class" ? isMethod : null;
         }
 
         if (isInsideFunction) {
@@ -65,16 +82,29 @@ export function activate(context: vscode.ExtensionContext): void {
       functions.map((each) => {
         const each_ = each as CurrentFunctionType;
         const eachLineNumber = each_?.lineNumber;
-        data_.push({
-          label: each_.funcName,
-          detail: `Line: ${eachLineNumber}  | ${each_.type}`,
-          lineNumber: eachLineNumber,
-        });
+        let dropdownData = null;
+
+        if (each_.funcName !== "Class" && each_?.isaMethod === true) {
+          dropdownData = {
+            label: `      ├─ ${each_.funcName}`,
+            detail: `         Line: ${eachLineNumber}`,
+            lineNumber: eachLineNumber,
+          };
+        } else {
+          dropdownData = {
+            label: `${each_.funcName}`,
+            detail: `Line: ${eachLineNumber}  | ${each_.type}`,
+            lineNumber: eachLineNumber,
+          };
+        }
+
+        data_.push(dropdownData);
       });
 
       //picker ui
       const selectedFunc = await vscode.window.showQuickPick(data_, {
         matchOnDetail: true, //enables the keyword search on title as well as on details,
+        placeHolder: "Enter a class or function name",
       });
 
       if (!selectedFunc) {
