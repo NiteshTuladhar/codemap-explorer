@@ -3,7 +3,7 @@
   "displayName": "CodeMap Explorer",
   "publisher": "ntldr",
   "description": "This extension extracts function/class names, and presents a convenient listfor swift navigation.",
-  "icon": "./assets/logo.png",
+  "icon": "/assets/logo.png",
   "version": "0.3.1",
   "engines": {
     "vscode": "^1.62.0"
