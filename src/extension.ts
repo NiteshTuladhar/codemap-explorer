@@ -86,7 +86,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
         if (each_.funcName !== "Class" && each_?.isaMethod === true) {
           dropdownData = {
-            label: `      ├─ ${each_.funcName}`,
+            label: `      └─ ${each_.funcName}`,
             detail: `         Line: ${eachLineNumber}`,
             lineNumber: eachLineNumber,
           };
