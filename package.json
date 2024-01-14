@@ -4,7 +4,7 @@
   "publisher": "ntldr",
   "description": "This extension extracts function/class names, and presents a convenient listfor swift navigation.",
   "icon": "assets/logo.png",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "engines": {
     "vscode": "^1.62.0"
   },
