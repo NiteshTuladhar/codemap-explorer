@@ -14,4 +14,5 @@ type DataType = {
   label: string;
   detail?: string;
   lineNumber: number;
+  kind?: any;
 };

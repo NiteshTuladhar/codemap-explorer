@@ -10,13 +10,23 @@ export const patterns = [
   { condition: /^def\s/, type: "Function" },
   { condition: /^const\s\w+\s=\snew\sFunction\(/, type: "Function" },
   { condition: /^[\w$]+\(.*?\)\s*{/, type: "Function" }, // getData() or getData(value)
+  // Example for TypeScript interface
+  { condition: /^interface\s/, type: "Interface" },
+  // Example for TypeScript enum
+  { condition: /^enum\s/, type: "Enum" },
+  // Example for Python decorator
+  { condition: /^module\.exports\s*=\s*/, type: "Function" },
+  { condition: /^exports\.\w+\s*=\s*/, type: "Function" },
 ];
 
 export const valueChecker = (value: string) => {
   return patterns.some((pattern) => pattern.condition.test(value));
 };
 
-export const jsExtracter = (value: string): ExtractorType => {
+export const jsExtracter = (
+  value: string,
+  fileContent: string
+): ExtractorType => {
   let valueName = "";
   let type = "Function";
   if (value.startsWith("function ")) {

@@ -2,13 +2,13 @@
 
 import * as vscode from "vscode";
 import { jsExtracter, pythonExtracter, valueChecker } from "./utils/extracter";
-//
+
 export function activate(context: vscode.ExtensionContext): void {
   let disposable = vscode.commands.registerCommand(
     "codemap-explorer.codemapper",
     async () => {
       const data_: DataType[] = [];
-
+      let isCollapsed = context.globalState.get("isCollapsed", false);
       //get the active text editor
       const editor = vscode.window.activeTextEditor;
       if (editor === undefined) {
@@ -27,11 +27,6 @@ export function activate(context: vscode.ExtensionContext): void {
 
       for (const line of lines) {
         const trimmedLine = line.trim();
-        console.log("🚀 ~ trimmedLine:", trimmedLine);
-        console.log(
-          "🚀 ~ valueChecker(trimmedLine):",
-          valueChecker(trimmedLine)
-        );
 
         ///checking to see it the function is inside a class or not.
         if (/^\s/.test(line)) {
@@ -58,8 +53,10 @@ export function activate(context: vscode.ExtensionContext): void {
             extractorType = pythonExtracter;
           }
 
-          (currentFunction as CurrentFunctionType).funcName =
-            extractorType(trimmedLine).valueName;
+          (currentFunction as CurrentFunctionType).funcName = extractorType(
+            trimmedLine,
+            fileContent
+          ).valueName;
 
           (currentFunction as CurrentFunctionType).lineNumber =
             targetLineNumber;
@@ -79,6 +76,29 @@ export function activate(context: vscode.ExtensionContext): void {
         }
       }
 
+      data_.push(
+        {
+          label: `${
+            isCollapsed
+              ? "$(expand-all) Expand All"
+              : "$(collapse-all) Collapse All"
+          }`,
+          detail: isCollapsed
+            ? "Expand all functions and classes"
+            : "Collapse all functions and classes",
+          lineNumber: -1,
+        },
+        {
+          label: "List of all classes and functions", // Label can be empty
+          kind: vscode.QuickPickItemKind.Separator, // Native separator
+          lineNumber: -2,
+        },
+        {
+          label: "",
+          lineNumber: -3,
+        }
+      );
+
       functions.map((each) => {
         const each_ = each as CurrentFunctionType;
         const eachLineNumber = each_?.lineNumber;
@@ -86,14 +106,14 @@ export function activate(context: vscode.ExtensionContext): void {
 
         if (each_.funcName !== "Class" && each_?.isaMethod === true) {
           dropdownData = {
-            label: `      └─ ${each_.funcName}`,
-            detail: `         Line: ${eachLineNumber}`,
+            label: `      $(symbol-variable) ${each_.funcName}`,
+            detail: `       Line: ${eachLineNumber}`,
             lineNumber: eachLineNumber,
           };
         } else {
           dropdownData = {
-            label: `${each_.funcName}`,
-            detail: `Line: ${eachLineNumber}  | ${each_.type}`,
+            label: `$(symbol-method) ${each_.funcName}`,
+            detail: ` Line: ${eachLineNumber}  | ${each_.type}`,
             lineNumber: eachLineNumber,
           };
         }
@@ -107,14 +127,43 @@ export function activate(context: vscode.ExtensionContext): void {
         placeHolder: "Enter a class or function name",
       });
 
+      async function collapseAllRegions(editor: vscode.TextEditor) {
+        await vscode.commands.executeCommand("editor.foldAll");
+      }
+
+      async function expandAllRegions(editor: vscode.TextEditor) {
+        await vscode.commands.executeCommand("editor.unfoldAll");
+      }
+
       if (!selectedFunc) {
         return;
       } else {
-        const line: number = selectedFunc.lineNumber;
-        const position = new vscode.Position(line - 1, 0);
-        const newSelection = new vscode.Selection(position, position);
-        editor.selection = newSelection;
-        editor.revealRange(newSelection, vscode.TextEditorRevealType.InCenter);
+        if (selectedFunc.lineNumber === -1) {
+          // Toggle collapse/expand
+          if (isCollapsed) {
+            await expandAllRegions(editor);
+          } else {
+            await collapseAllRegions(editor);
+          }
+          isCollapsed = !isCollapsed;
+          await context.globalState.update("isCollapsed", isCollapsed);
+        } else if (selectedFunc.lineNumber === -2) {
+          // Separator line selected, do nothing
+          return;
+        } else if (selectedFunc.lineNumber === -3) {
+          return;
+        } else if (selectedFunc.lineNumber === -4) {
+          return;
+        } else {
+          const line: number = selectedFunc.lineNumber;
+          const position = new vscode.Position(line - 1, 0);
+          const newSelection = new vscode.Selection(position, position);
+          editor.selection = newSelection;
+          editor.revealRange(
+            newSelection,
+            vscode.TextEditorRevealType.InCenter
+          );
+        }
       }
     }
   );

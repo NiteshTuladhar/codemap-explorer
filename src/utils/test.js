@@ -38,6 +38,8 @@ function MyFunctionalComponent() {
   );
 }
 
+
+
 const NotesContextProvider = ({ children }) => {
   const [notes, setNotes] = useState([]);
   const { test } = useContext(null);
